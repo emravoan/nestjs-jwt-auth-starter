@@ -1,4 +1,5 @@
-import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { normalizeRequestMiddleware } from '@common/middlewares/normalize-request.middleware';
+import { ValidationPipeFactory } from '@common/utils/pipes/validation-pipe';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -17,26 +18,11 @@ async function bootstrap() {
   SwaggerModule.setup('swagger', app, swagFactory);
 
   app.setGlobalPrefix(`${prefix}/${version}`);
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      transform: true,
-      disableErrorMessages: true,
-      exceptionFactory: (errors) => {
-        const formattedErrors = errors.map(({ property, constraints }) => ({
-          field: property,
-          messages: Object.values(constraints || {}),
-        }));
 
-        return new BadRequestException({
-          message: 'Some fields are invalid. Please check and try again.',
-          errors: formattedErrors,
-        });
-      },
-    }),
-  );
-
+  app.useGlobalPipes(ValidationPipeFactory());
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
+
+  app.use(normalizeRequestMiddleware);
 
   await app.listen(port);
   console.log(`Swagger is running on: http://localhost:${port}/swagger`);

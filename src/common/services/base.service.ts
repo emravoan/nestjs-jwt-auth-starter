@@ -60,4 +60,6 @@ export class BaseService<T extends ObjectLiteral> {
     await this.repository.delete(id);
     return item;
   }
+
+  remove = this.delete.bind(this);
 }
