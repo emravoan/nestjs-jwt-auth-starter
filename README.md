@@ -1,9 +1,5 @@
 # NestJS JWT Auth Starter
 
-![GitHub Repo stars](https://img.shields.io/github/stars/emravoan/nestjs-jwt-auth-starter.git?style=social)
-![GitHub issues](https://img.shields.io/github/issues/emravoan/nestjs-jwt-auth-starter.git?style=social)
-![License](https://img.shields.io/github/license/emravoan/nestjs-jwt-auth-starter.git?style=social)
-
 A basic NestJS starter project with JWT authentication, config support, and modular architecture.
 
 ## Features
