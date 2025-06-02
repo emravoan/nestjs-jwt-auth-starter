@@ -13,7 +13,7 @@ export class ReadController<T> {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<T | null> {
-    return this.service.findOne(+id);
+  findOneById(@Param('id', ParseIntPipe) id: number): Promise<T | null> {
+    return this.service.findOneById(id);
   }
 }

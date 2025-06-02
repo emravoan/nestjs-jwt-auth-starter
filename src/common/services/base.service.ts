@@ -1,4 +1,3 @@
-// import { UniqueValidatorService } from '@common/constraints/is-unique.constraint';
 import { Paginated } from '@common/dtos/paginated.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DeepPartial, FindManyOptions, FindOptionsWhere, ObjectLiteral, Repository } from 'typeorm';
@@ -6,6 +5,8 @@ import { DeepPartial, FindManyOptions, FindOptionsWhere, ObjectLiteral, Reposito
 @Injectable()
 export class BaseService<T extends ObjectLiteral> {
   constructor(private readonly repository: Repository<T>) {}
+
+  protected relations: StringArray = [];
 
   /**
    * Request by UniqueValidatorService
@@ -19,13 +20,24 @@ export class BaseService<T extends ObjectLiteral> {
       ...options,
       skip: (page - 1) * limit,
       take: limit,
+      relations: this.relations,
     });
 
     return new Paginated<T>(items, page, limit, total);
   }
 
-  findOne(id: number): Promise<T | null> {
-    return this.repository.findOneBy({ id } as any);
+  findOneById(id: number): Promise<T | null> {
+    return this.repository.findOne({
+      where: { id } as any,
+      relations: this.relations,
+    });
+  }
+
+  findOneByField(field: keyof T, value: string | number): Promise<T | null> {
+    return this.repository.findOne({
+      where: { [field]: value } as FindOptionsWhere<T>,
+      relations: this.relations,
+    });
   }
 
   create(data: DeepPartial<T>): Promise<T> {
@@ -34,7 +46,7 @@ export class BaseService<T extends ObjectLiteral> {
   }
 
   async update(id: number, data: DeepPartial<T>): Promise<T> {
-    const item = await this.repository.findOneBy({ id } as any);
+    const item = await this.findOneById(id);
     if (!item) throw new NotFoundException('The item does not exist');
 
     this.repository.merge(item, data);
@@ -42,14 +54,10 @@ export class BaseService<T extends ObjectLiteral> {
   }
 
   async delete(id: number): Promise<T> {
-    const item = await this.repository.findOneBy({ id } as any);
+    const item = await this.findOneById(id);
     if (!item) throw new NotFoundException('The item does not exist');
 
     await this.repository.delete(id);
     return item;
-  }
-
-  findOneByField(field: keyof T, value: string | number): Promise<T | null> {
-    return this.repository.findOneBy({ [field]: value } as FindOptionsWhere<T>);
   }
 }

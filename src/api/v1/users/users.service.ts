@@ -14,6 +14,7 @@ export class UsersService extends BaseService<Users> {
     private readonly usersRepository: Repository<Users>,
   ) {
     super(usersRepository);
+    this.relations = ['role'];
   }
 
   async findOneWithPassword(field: keyof Users, value: string | number): Promise<Users | null> {

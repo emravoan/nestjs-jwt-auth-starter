@@ -1,7 +1,8 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 import { BaseEntity } from '@common/entities/base.entity';
 import { pwdHash } from '@common/utils/password';
+import { Roles } from '../roles/roles.entity';
 
 @Entity()
 export class Users extends BaseEntity {
@@ -16,6 +17,10 @@ export class Users extends BaseEntity {
 
   @Column({ select: false, length: 255 })
   password: string;
+
+  @ManyToOne(() => Roles)
+  @JoinColumn({ name: 'role_id' })
+  role!: Roles;
 
   @BeforeInsert()
   @BeforeUpdate()

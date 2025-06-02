@@ -10,8 +10,8 @@ export class BaseController<T, CreateDto, UpdateDto> {
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<T | null> {
-    return this.service.findOne(+id);
+  findOneById(@Param('id', ParseIntPipe) id: number): Promise<T | null> {
+    return this.service.findOneById(id);
   }
 
   @Post()
@@ -21,11 +21,11 @@ export class BaseController<T, CreateDto, UpdateDto> {
 
   @Put(':id')
   update(@Param('id', ParseIntPipe) id: number, @Body() data: UpdateDto): Promise<T> {
-    return this.service.update(+id, data);
+    return this.service.update(id, data);
   }
 
   @Delete(':id')
   delete(@Param('id', ParseIntPipe) id: number): Promise<DeleteResult> {
-    return this.service.delete(+id);
+    return this.service.delete(id);
   }
 }

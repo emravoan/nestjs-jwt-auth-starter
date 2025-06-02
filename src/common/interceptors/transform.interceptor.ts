@@ -24,25 +24,23 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
     const handlerName = handler.name;
     const customMessage = this.reflector.get<string>('decorator:message', handler);
 
+    const mapMessage: Recordable = {
+      create: 'Item created successfully',
+      update: 'Item updated successfully',
+      delete: 'Item deleted successfully',
+      findAll: 'Data retrieved successfully',
+      findOneById: 'Item retrieved successfully',
+      findOneByField: 'Item retrieved successfully',
+    };
+
     return next.handle().pipe(
       map((value) => {
         const isPaginated = value instanceof Paginated;
         const data = isPaginated ? value.items : value;
         const pagination = isPaginated ? value.pagination : null;
-
-        const defaultMessage = handlerName.startsWith('findAll')
-          ? 'Data retrieved successfully'
-          : handlerName.startsWith('findOne')
-            ? 'Item retrieved successfully'
-            : handlerName.startsWith('create')
-              ? 'Item created successfully'
-              : handlerName.startsWith('update')
-                ? 'Item updated successfully'
-                : handlerName.startsWith('delete')
-                  ? 'Item deleted successfully'
-                  : isPaginated
-                    ? 'Data retrieved successfully'
-                    : 'Operation successful';
+        const defaultMessage =
+          Object.entries(mapMessage).find(([k]) => handlerName.startsWith(k))?.[1] ??
+          (isPaginated ? 'Data retrieved successfully' : 'Operation successful');
 
         return {
           data,
