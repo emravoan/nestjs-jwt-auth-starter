@@ -6,7 +6,7 @@ import {
   ValidatorConstraintInterface,
   ValidationArguments,
 } from 'class-validator';
-import { EntityManager } from 'typeorm';
+import { EntityManager, Not } from 'typeorm';
 
 export type IsUniqueInterface = {
   table: string;
@@ -22,13 +22,20 @@ export class IsUniqueConstraint implements ValidatorConstraintInterface {
   async validate(value: any, args: ValidationArguments): Promise<boolean> {
     const { table, column } = args.constraints[0] as IsUniqueInterface;
     const field = column || args.property;
-    const existing = await this.entityManager
+    const entity = args.object as Recordable;
+
+    const query = this.entityManager
       .getRepository(table)
       .createQueryBuilder(table)
-      .where({ [field]: value })
-      .getExists();
+      .where({ [field]: value });
 
-    return !existing;
+    // Exclude current record during update
+    if (entity?.id) {
+      query.andWhere({ id: Not(entity.id) });
+    }
+
+    const exists = await query.getExists();
+    return !exists;
   }
 
   defaultMessage(args: ValidationArguments) {
