@@ -1,5 +1,4 @@
-import { normalizeRequestMiddleware } from '@common/middlewares/normalize-request.middleware';
-import { ValidationPipeFactory } from '@common/utils/pipes/validation-pipe';
+import { localeMiddleware } from '@common/middlewares/locale.middleware';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
@@ -19,10 +18,8 @@ async function bootstrap() {
 
   app.setGlobalPrefix(`${prefix}/${version}`);
 
-  app.useGlobalPipes(ValidationPipeFactory());
+  app.use(localeMiddleware);
   useContainer(app.select(AppModule), { fallbackOnErrors: true });
-
-  app.use(normalizeRequestMiddleware);
 
   await app.listen(port);
   console.log(`Swagger is running on: http://localhost:${port}/swagger`);

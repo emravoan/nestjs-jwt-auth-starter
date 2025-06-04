@@ -1,8 +1,8 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-
 import { JwtAuthGuard } from '@api/v1/auth/guards/jwt-auth.guard';
+
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Reflector } from '@nestjs/core';
 
 @Injectable()
 export class AppAuthGuard extends JwtAuthGuard implements CanActivate {
@@ -22,9 +22,15 @@ export class AppAuthGuard extends JwtAuthGuard implements CanActivate {
     const prefix = this.config.get('api.prefix');
     const version = this.config.get('api.version');
 
-    if (this.excludedPaths.some((excludedPath) => path.includes(`${prefix}/${version}/${excludedPath}`))) {
+    // Check if the request path is excluded
+    if (this.excludedPaths.some((p) => path.includes(`${prefix}/${version}/${p}`))) {
       return true;
     }
+
+    // Check if the request has a valid locale header
+    // if (!req.headers['x-locale']) {
+    //   throw new UnauthorizedException();
+    // }
 
     return super.canActivate(context);
   }
