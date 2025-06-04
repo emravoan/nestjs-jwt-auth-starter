@@ -8,13 +8,6 @@ export class BaseService<T extends ObjectLiteral> {
 
   protected relations: StringArray = [];
 
-  /**
-   * Request by UniqueValidatorService
-   */
-  async findExists(field: string, value: string): Promise<boolean> {
-    return this.repository.existsBy({ [field]: value } as FindOptionsWhere<T>);
-  }
-
   async findAll(page: number = 1, limit: number = 10, options: FindManyOptions<T> = {}): Promise<Paginated<T>> {
     const [items, total] = await this.repository.findAndCount({
       ...options,
@@ -41,15 +34,15 @@ export class BaseService<T extends ObjectLiteral> {
   }
 
   create(data: DeepPartial<T>): Promise<T> {
-    const repo = this.repository.create(data);
-    return this.repository.save(repo);
+    const qb = this.repository.create(data);
+    return this.repository.save(qb);
   }
 
   async update(id: number, data: DeepPartial<T>): Promise<T> {
     const item = await this.findOneById(id);
     if (!item) throw new NotFoundException('The item does not exist');
 
-    this.repository.merge(item, data);
+    this.repository.merge(item, data, { id: item.id } as DeepPartial<any>);
     return this.repository.save(item);
   }
 
@@ -61,5 +54,5 @@ export class BaseService<T extends ObjectLiteral> {
     return item;
   }
 
-  remove = this.delete.bind(this);
+  remove: (id: number) => Promise<T> = this.delete.bind(this);
 }
