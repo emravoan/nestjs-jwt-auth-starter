@@ -1,3 +1,4 @@
+import { isObj, trim } from '@common/constants';
 import { IPagination, Paginated } from '@common/dtos/paginated.dto';
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler, HttpException, HttpStatus } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
@@ -21,9 +22,9 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<Response<T>> {
     const handler = context.getHandler();
+    const request = context.switchToHttp().getRequest();
     const handlerName = handler.name;
     const customMessage = this.reflector.get<string>('decorator:message', handler);
-
     const mapMessage: Recordable = {
       create: 'Item created successfully',
       update: 'Item updated successfully',
@@ -32,6 +33,8 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
       findOneById: 'Item retrieved successfully',
       findOneByField: 'Item retrieved successfully',
     };
+
+    this.transformer(request);
 
     return next.handle().pipe(
       map((value) => {
@@ -74,5 +77,16 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
         );
       }),
     );
+  }
+
+  /**
+   * Transformer to trim request parameters and body.
+   * @param req - The request object.
+   */
+  transformer(req: any): void {
+    req.params = trim(req.params);
+    if (isObj(req.body)) {
+      req.body = { ...req.params, ...trim(req.body) };
+    }
   }
 }

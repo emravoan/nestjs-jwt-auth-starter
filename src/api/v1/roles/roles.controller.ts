@@ -1,7 +1,6 @@
-import { Body, Controller, Param, ParseIntPipe, Post, Put, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { Body, Controller, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
 
-import { ReadController } from '@common/controllers/read.controller';
+import { BaseController } from '@common/controllers/base.controller';
 import { Message } from '@common/decorators/message.decorator';
 
 import { CreateRolesDto } from './roles.dto';
@@ -9,8 +8,7 @@ import { Roles } from './roles.entity';
 import { RolesService } from './roles.service';
 
 @Controller('roles')
-@ApiBearerAuth()
-export class RolesController extends ReadController<Roles> {
+export class RolesController extends BaseController<Roles> {
   constructor(private readonly rolesService: RolesService) {
     super(rolesService);
   }

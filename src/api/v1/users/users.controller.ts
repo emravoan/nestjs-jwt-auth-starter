@@ -1,15 +1,14 @@
 import { Body, Controller, Delete, Param, ParseIntPipe, Post, Put } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 
-import { ReadController } from '@common/controllers/read.controller';
+import { BaseController } from '@common/controllers/base.controller';
 
 import { CreateUsersDto, UpdateUsersDto } from './users.dto';
 import { Users } from './users.entity';
 import { UsersService } from './users.service';
 
 @Controller('users')
-@ApiBearerAuth()
-export class UsersController extends ReadController<Users> {
+export class UsersController extends BaseController<Users> {
   constructor(private readonly userService: UsersService) {
     super(userService);
   }
