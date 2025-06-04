@@ -1,12 +1,25 @@
-import { Get, Post, Put, Delete, Param, Body, ParseIntPipe } from '@nestjs/common';
-import { DeleteResult } from 'typeorm';
+import { QueryDto } from '@common/dtos/query.dto';
+import { Get, Delete, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { ApiBearerAuth, ApiHeader } from '@nestjs/swagger';
 
-export class BaseController<T, CreateDto, UpdateDto> {
+@ApiBearerAuth()
+@ApiHeader({
+  name: 'x-locale',
+  description: 'Locale code (e.g. en, km)',
+  schema: {
+    type: 'string',
+    example: 'en',
+  },
+})
+export class BaseController<T> {
   constructor(private readonly service: any) {}
 
   @Get()
-  findAll(): Promise<T[]> {
-    return this.service.findAll();
+  findAll(@Query() query: QueryDto): Promise<T[]> {
+    const { page: p, limit: l, ...where } = query;
+    const page = parseInt(p ?? '1', 10);
+    const limit = parseInt(l ?? '10', 10);
+    return this.service.findAll(+page, +limit, where);
   }
 
   @Get(':id')
@@ -14,18 +27,8 @@ export class BaseController<T, CreateDto, UpdateDto> {
     return this.service.findOneById(id);
   }
 
-  @Post()
-  create(@Body() data: CreateDto): Promise<T> {
-    return this.service.create(data);
-  }
-
-  @Put(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() data: UpdateDto): Promise<T> {
-    return this.service.update(id, data);
-  }
-
   @Delete(':id')
-  delete(@Param('id', ParseIntPipe) id: number): Promise<DeleteResult> {
-    return this.service.delete(id);
+  remove(@Param('id') id: string) {
+    return this.service.remove(+id);
   }
 }
