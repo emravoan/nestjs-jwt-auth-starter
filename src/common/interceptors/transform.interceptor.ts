@@ -1,5 +1,5 @@
-import { isObj, trim } from '@common/constants';
-import { IPagination, Paginated } from '@common/dtos/paginated.dto';
+import { IPagination, Paginated } from '@common/dto/paginated.dto';
+import { isObject, trim } from '@common/utils/common';
 import { Injectable, NestInterceptor, ExecutionContext, CallHandler, HttpException, HttpStatus } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { Logger } from 'nestjs-pino';
@@ -29,6 +29,7 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
       create: 'Item created successfully',
       update: 'Item updated successfully',
       delete: 'Item deleted successfully',
+      remove: 'Item deleted successfully',
       findAll: 'Data retrieved successfully',
       findOneById: 'Item retrieved successfully',
       findOneByField: 'Item retrieved successfully',
@@ -85,7 +86,7 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
    */
   transformer(req: any): void {
     req.params = trim(req.params);
-    if (isObj(req.body)) {
+    if (isObject(req.body)) {
       req.body = { ...req.params, ...trim(req.body) };
     }
   }

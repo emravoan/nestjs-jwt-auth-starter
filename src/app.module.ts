@@ -1,4 +1,6 @@
 import { V1Module } from '@api/v1/v1.module';
+import { IsAutoIncrementalConstraint } from '@common/constraints/is-auto-incremental.constraint';
+import { IsUniqueConstraint } from '@common/constraints/is-unique.constraint';
 import { TransformInterceptor } from '@common/interceptors/transform.interceptor';
 import { LoggerFactory } from '@common/utils/logger/logger-factory';
 import { ValidationPipeFactory } from '@common/utils/pipes/pipe-factory';
@@ -29,6 +31,8 @@ import { LoggerModule } from 'nestjs-pino';
       provide: APP_PIPE,
       useFactory: ValidationPipeFactory,
     },
+    IsUniqueConstraint,
+    IsAutoIncrementalConstraint,
   ],
 })
 export class AppModule {}

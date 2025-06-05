@@ -1,4 +1,4 @@
-import { Paginated } from '@common/dtos/paginated.dto';
+import { Paginated } from '@common/dto/paginated.dto';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { DeepPartial, FindManyOptions, FindOptionsWhere, ObjectLiteral, Repository } from 'typeorm';
 
