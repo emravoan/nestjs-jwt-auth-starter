@@ -1,19 +1,22 @@
+import { RequestMethod } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { LoggerModuleAsyncParams } from 'nestjs-pino';
 import pino from 'pino';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as rfs from 'rotating-file-stream';
-import { RequestMethod } from '@nestjs/common';
+
+export const LOGGER_DIR: string = path.resolve(process.cwd(), 'logs');
+
+export const LOGGER_FILE: string = `${LOGGER_DIR}/app.log`;
 
 export const LoggerFactory: LoggerModuleAsyncParams = {
   inject: [ConfigService],
   useFactory: (config: ConfigService) => {
     const isProd = config.get<string>('app.env') === 'production';
-    const logDir = path.resolve('./logs');
 
-    if (!fs.existsSync(logDir)) {
-      fs.mkdirSync(logDir, { recursive: true });
+    if (!fs.existsSync(LOGGER_DIR)) {
+      fs.mkdirSync(LOGGER_DIR, { recursive: true });
     }
 
     const stream = rfs.createStream(
@@ -23,7 +26,7 @@ export const LoggerFactory: LoggerModuleAsyncParams = {
         return `app-${date.toISOString().slice(0, 10)}.log.gz`;
       },
       {
-        path: logDir,
+        path: LOGGER_DIR,
         maxFiles: 30,
         interval: '1m',
         compress: 'gzip',
@@ -47,12 +50,12 @@ export const LoggerFactory: LoggerModuleAsyncParams = {
               transport: {
                 target: 'pino-pretty',
                 options: {
-                  destination: './logs/app.log',
+                  destination: LOGGER_FILE,
                   mkdir: true,
                   sync: false,
                   translateTime: 'yyyy-mm-dd HH:MM:ss',
                   ignore: 'pid,hostname,req,res,responseTime',
-                  messageFormat: '{method} {url} from {ip} - {msg}',
+                  messageFormat: '{if ip}{method} {url} from {ip} - {end}{msg}',
                   colorize: false,
                   singleLine: true,
                 },
