@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
   registerDecorator,
   ValidationOptions,
@@ -17,7 +17,13 @@ export type IsUniqueInterface = {
 @Injectable()
 @ValidatorConstraint({ async: true })
 export class IsUniqueConstraint implements ValidatorConstraintInterface {
-  constructor(private readonly entityManager: EntityManager) {}
+  constructor(private readonly entityManager: EntityManager) {
+    if (!this.entityManager) {
+      const error = new Error(`${this.constructor.name} must be registered as a provider.`);
+      console.error(error);
+      throw error;
+    }
+  }
 
   async validate(value: any, args: ValidationArguments): Promise<boolean> {
     const { table, column } = args.constraints[0] as IsUniqueInterface;
