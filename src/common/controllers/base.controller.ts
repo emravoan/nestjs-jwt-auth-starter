@@ -1,16 +1,16 @@
-import { QueryDto } from '@common/dtos/query.dto';
+import { QueryDto } from '@common/dto/query.dto';
 import { Get, Delete, Param, ParseIntPipe, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiHeader } from '@nestjs/swagger';
 
 @ApiBearerAuth()
-@ApiHeader({
-  name: 'x-locale',
-  description: 'Locale code (e.g. en, km)',
-  schema: {
-    type: 'string',
-    example: 'en',
-  },
-})
+// @ApiHeader({
+//   name: 'x-locale',
+//   description: 'Locale code (e.g. en, km)',
+//   schema: {
+//     type: 'string',
+//     example: 'en',
+//   },
+// })
 export class BaseController<T> {
   constructor(private readonly service: any) {}
 
